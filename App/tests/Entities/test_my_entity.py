@@ -4,7 +4,6 @@ Module containing the 'TestMyEntity' Class.
 
 import unittest
 
-from src.Entities.my_entity import MyEntity
 
 class TestMyEntity(unittest.TestCase):
     """

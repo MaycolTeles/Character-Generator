@@ -2,7 +2,7 @@
 Module containing the 'CLI' Class.
 """
 
-from App.src.Interfaces.MVC.View.UI_interface import UI
+from src.Interfaces.MVC.View.UI_interface import UI
 
 
 class CLI(UI):
@@ -23,25 +23,28 @@ class CLI(UI):
         """
         Method to show some message or text to the user.
 
-        This method must be implemented in all classes that
-        implements this interface.
-
         Parameters
         -----------
         msg : str
-            The message to be showed to the user.
+            The message to be printed to the user.
         """
+        print(msg)
 
-    def get_input(self) -> str:
+    def get_input(self, msg: str='Digite a opção desejada: ') -> str:
         """
         Method to get some input from the user.
 
-        This method must be implemented in all classes that
-        implements this interface.
+        Parameters
+        -----------
+        msg : str, optional
+            The message to be printed to the user.
+            This parameters is optional.
+            If it's not passed, its default value will be:
+            'Digite a opção desejada: '
 
         Returns
         -----------
         str
             The user input.
         """
-        ...
+        return input(msg)

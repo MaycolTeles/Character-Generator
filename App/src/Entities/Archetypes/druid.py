@@ -9,4 +9,3 @@ class Druid(Archetype):
     """
     Class to represent a Druid Archetype.
     """
-

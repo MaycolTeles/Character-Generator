@@ -7,5 +7,5 @@ from abc import ABC
 
 class Archetype(ABC):
     """
-    Class to represent a generic archetype (or class).
+    Class to represent a generic archetype (class).
     """
