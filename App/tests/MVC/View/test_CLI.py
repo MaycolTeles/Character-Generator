@@ -6,7 +6,7 @@ import io
 import unittest
 from unittest.mock import patch, MagicMock
 
-from src.MVC.View.CLI import CLI
+from App.src.MVC.View.general_CLI import CLI
 
 
 class TestCLI(unittest.TestCase):
@@ -21,12 +21,12 @@ class TestCLI(unittest.TestCase):
         self.CLI_instance = CLI()
 
     @patch('sys.stdout', new_callable=io.StringIO)
-    def test_show(self, mock_stdout: io.StringIO) -> None:
+    def test_show_message(self, mock_stdout: io.StringIO) -> None:
         """
         TODO: CREATE DOCSTRING.
         """
         message = 'test'
-        self.CLI_instance.show(message)
+        self.CLI_instance.show_message(message)
 
         actual = message + '\n'
         expected = mock_stdout.getvalue()

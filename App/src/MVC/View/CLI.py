@@ -2,16 +2,22 @@
 Module containing the 'CLI' Class.
 """
 
+# TYPE ANNOTATIONS IMPORTS
+from typing import Optional
+
+# MODULE IMPORTS
+from abc import ABC
+
 from src.Interfaces.MVC.View.UI_interface import UI
 
 
-class CLI(UI):
+class CLI(ABC, UI):
     """
-    Class to represent a Command Line Interface.
+    Abstract Class to represent a Command Line Interface.
 
     This class implements the 'UI' Interface, so
     it has all the 'UI' functionalities, like:
-    
+
     - Reading user inputs.
     - Showing some informations for the user.
 
@@ -19,9 +25,9 @@ class CLI(UI):
     (Dependency Inversion Principle).
     """
 
-    def show(self, msg: str) -> None:
+    def show_message(self, msg: str) -> None:
         """
-        Method to show some message or text to the user.
+        Method to show some message to the user.
 
         Parameters
         -----------
@@ -30,7 +36,25 @@ class CLI(UI):
         """
         print(msg)
 
-    def get_input(self, msg: str='Digite a opção desejada: ') -> str:
+    def show_error(self, error_msg: Optional[str]) -> None:
+        """
+        Method to show the error to the user.
+
+        Parameters
+        -----------
+        error_msg : str, optional
+            The message to be printed to the user.
+            This parameters is optional.
+            If it's not passed, its default value will be:
+            'Digite a opção desejada: '
+        """
+        self.show_message(f'''
+        Error: {error_msg}''')
+
+    def get_input(
+        self,
+        msg: Optional[str]='Please, choose one option: '
+    ) -> str:
         """
         Method to get some input from the user.
 
@@ -43,8 +67,21 @@ class CLI(UI):
             'Digite a opção desejada: '
 
         Returns
-        -----------
+        --------
         str
             The user input.
         """
         return input(msg)
+
+    def get_option(self) -> str:
+        """
+        Method to get the user input from the menu.
+
+        Returns
+        --------
+        str
+            The user input.
+        """
+        return self.get_input('''
+        Type your option: '''
+        )

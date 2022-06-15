@@ -1,14 +1,10 @@
-from src.Entities.Archetypes.cleric import Cleric
-from src.Entities.Archetypes.druid import Druid
-from src.Entities.Archetypes.mage import Mage
-from src.Entities.Archetypes.warlock import Warlock
-from src.Entities.Archetypes.warrior import Warrior
+from src.Entities.Archetypes.bandit import Bandit
+from src.Entities.Archetypes.prophet import Prophet
+from src.Entities.Archetypes.samurai import Samurai
 
 
 AVAILABLE_ARCHETYPES = {
-    'cleric': Cleric,
-    'druid': Druid,
-    'mage': Mage,
-    'warlock': Warlock,
-    'warrior': Warrior
+    'bandit': Bandit,
+    'prophet': Prophet,
+    'samurai': Samurai
 }

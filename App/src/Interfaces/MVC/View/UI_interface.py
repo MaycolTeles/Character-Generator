@@ -18,7 +18,7 @@ class UI(Protocol):
     (Dependency Inversion Principle).
     """
 
-    def show(self, msg: str) -> None:
+    def show_message(self, msg: str) -> None:
         """
         Method to show some message or text to the user.
 

@@ -2,21 +2,54 @@
 Module containing the 'MySQL' Class.
 """
 
-# TYPING IMPORTS
+# TYPE ANNOTATIONS IMPORTS
 from mysql.connector import MySQLConnection
 from mysql.connector.cursor_cext import CMySQLCursor
 
-from typing import Any, List
+from typing import Any, List, Optional, Union
 
 # MODULE IMPORTS
 import mysql.connector as mysql
 
+from contextlib import contextmanager
+
 from src.Env.variables import HOST, USER, PASSWORD, DATABASE
+from src.Exceptions.character_not_found import CharacterNotFoundException
 from src.Interfaces.MVC.Model.database_interface import Database
 from src.Models.Character.character import Character
 
 
-QUERY_PATH = 'App/database/queries/'
+@contextmanager
+def connect():
+    """
+    Function to connect to the database.
+
+    This function should be used as a context manager.
+    """
+
+    connection: MySQLConnection
+    cursor: CMySQLCursor
+
+    try:
+        connection = mysql.connect(
+            host=HOST,
+            user=USER,
+            password=PASSWORD,
+            database=DATABASE
+        )
+
+        cursor: CMySQLCursor = connection.cursor()
+
+        yield cursor
+
+    except mysql.Error as error:
+        print('ERROR!')
+        print(error)
+
+    finally:
+        connection.commit()
+        cursor.close()
+        connection.close()
 
 
 class MySQL(Database):
@@ -25,64 +58,20 @@ class MySQL(Database):
 
     This class implements the 'Database' Interface,
     so it must implement all the 'Database' functionalities, like:
-    
+
     - Handling database queries.
 
     This Class implements an Interface to respect the DIP
     (Dependency Inversion Principle).
     """
 
-    __database_connection: MySQLConnection
-    __cursor: CMySQLCursor
+    QUERY_PATH = 'App/database/queries/'
 
-    def __connect(self) -> bool:
-        """
-        Method to connect to the database.
-
-        Returns
-        --------
-        bool
-            - True if connection was successfully established;
-            - False otherwise.
-        """
-        try:
-            self.__database_connection = mysql.connect(
-                host=HOST,
-                user=USER,
-                password=PASSWORD,
-                database=DATABASE
-            )
-            self.__cursor = self.__database_connection.cursor()
-
-        except mysql.Error as error:
-            print('ERROR!')
-            print(f'Error while trying to connect to the database: {error}')
-            return False
-
-        return True
-
-    def __close(self) -> bool:
-        """
-        Method to close the connection to the database.
-
-        Returns
-        --------
-        bool
-            - True if connection was successfully closed;
-            - False otherwise.
-        """
-        try:
-            self.__cursor.close()
-            self.__database_connection.close()
-
-        except mysql.Error as error:
-            print('ERROR!')
-            print(f'Error while closing connection to the database: {error}')
-            return False
-
-        return True
-
-    def __execute_query(self, query: str, params: List[Any] = []) -> Any:
+    def __execute_query(
+        self,
+        query: str,
+        params: Optional[List[Union[str, int]]]=None
+    ) -> Any:
         """
         Method to execute the query received as argument with the parameters
         (If any - The default is an empty list for select's, for example)
@@ -93,7 +82,7 @@ class MySQL(Database):
         query : str
             The query to be executed.
 
-        params : List[Any], optional
+        params : List[str, int], optional
             The parameters to be used in the query.
             The default value is an empty list.
 
@@ -103,20 +92,15 @@ class MySQL(Database):
             - The data if the query was successafully executed;
             - False otherwise.
         """
-        res = False
+        if params is None:
+            params = []
 
-        try:
-            self.__connect()
-            self.__cursor.execute(query, params)
-            res = self.__cursor.fetchall()
-            self.__database_connection.commit()
+        with connect() as cursor:
+            cursor.execute(query, params)
 
-        except mysql.Error as error:
-            print('ERROR!')
-            print(f'Error while trying to insert data into the database: {error}')
+            res = cursor.fetchall()
 
-        finally:
-            self.__close()
+        print(res)
 
         return res
 
@@ -151,15 +135,9 @@ class MySQL(Database):
         Any
             The data that was read.
         """
-        try:
-            with open(QUERY_PATH + 'insert_character.sql', 'r') as file:
-                query = file.read()
-                self.__execute_query(query, character.params_to_database())
-
-        except Exception as error:
-            print('ERROR!')
-            print(f'Error while trying to insert the character into the database: {error}')
-            return False
+        with open(self.QUERY_PATH + 'insert_character.sql', 'r') as file:
+            query = file.read()
+            self.__execute_query(query, character.params_to_database())
 
         return True
 
@@ -174,20 +152,22 @@ class MySQL(Database):
 
         Returns
         --------
-        bool
-            - True if data was successfully updated;
-            - False otherwise.
+        character : Character
+            The character that was read from the database.
+
+        Raises
+        -------
+        CharacterNotFoundException
+            If the character was not found in the database.
         """
-        try:
-            with open(QUERY_PATH + 'read_character.sql', 'r') as file:
-                query = file.read()
-                character = self.__execute_query(query, [character_name])
+        with open(self.QUERY_PATH + 'read_character.sql', 'r') as file:
+            query = file.read()
+            character = self.__execute_query(query, [character_name])
 
-        except Exception as error:
-            print('ERROR!')
-            print(f'Error while trying to read the character from the database: {error}')
-            return False
-
+        if not character:
+            raise CharacterNotFoundException(
+                'Character not found in the database.'
+            )
 
         return character
 
@@ -207,14 +187,8 @@ class MySQL(Database):
             - True if character was successfully deleted;
             - False otherwise.
         """
-        try:
-            with open(QUERY_PATH + 'delete_character.sql', 'r') as file:
-                query = file.read()
-                self.__execute_query(query, [character_name])
-
-        except Exception as error:
-            print('ERROR!')
-            print(f'Error while trying to delete the character from the database: {error}')
-            return False
+        with open(self.QUERY_PATH + 'delete_character.sql', 'r') as file:
+            query = file.read()
+            self.__execute_query(query, [character_name])
 
         return True
