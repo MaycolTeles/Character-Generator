@@ -6,7 +6,7 @@ import io
 import unittest
 from unittest.mock import patch, MagicMock
 
-from App.src.MVC.View.general_CLI import CLI
+from src.MVC.View.general_CLI import CLI
 
 
 class TestCLI(unittest.TestCase):

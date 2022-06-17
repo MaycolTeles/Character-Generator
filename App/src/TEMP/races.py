@@ -4,7 +4,7 @@ from src.Entities.Races.human import Human
 
 
 AVAILABLE_RACES = {
-    'dwarf': Dwarf,
-    'elf': Elf,
-    'human': Human
+    'Dwarf': Dwarf,
+    'Elf': Elf,
+    'Human': Human
 }

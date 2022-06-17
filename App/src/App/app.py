@@ -20,16 +20,17 @@ class App:
         """
         # TODO: CREATE DOCSTRING
         """
+        mysql = MySQL()
+
         self.general_controller = GeneralController(
-            model=MySQL(),
+            model=mysql,
             view=GeneralCLI(),
             app=self
         )
 
         self.character_controller = CharacterController(
-            model=MySQL(),
+            model=mysql,
             view=CharacterCLI(),
-            app=self
         )
 
     def run(self) -> None:

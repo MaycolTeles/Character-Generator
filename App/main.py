@@ -19,5 +19,16 @@ def main() -> None:
     app.run()
 
 
+# def test():
+#     from src.Models.Character.character import Character
+#     from src.Entities.Archetypes.bandit import Bandit
+#     from src.Entities.Races.dwarf import Dwarf
+#     character = Character('sda', Bandit(), Dwarf(), 1)
+
+#     values = character.get_attributes()
+
+#     print(values)
+
+
 if __name__ == '__main__':
     main()

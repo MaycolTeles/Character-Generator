@@ -4,7 +4,7 @@ from src.Entities.Archetypes.samurai import Samurai
 
 
 AVAILABLE_ARCHETYPES = {
-    'bandit': Bandit,
-    'prophet': Prophet,
-    'samurai': Samurai
+    'Bandit': Bandit,
+    'Prophet': Prophet,
+    'Samurai': Samurai
 }

@@ -36,20 +36,29 @@ class CLI(ABC, UI):
         """
         print(msg)
 
-    def show_error(self, error_msg: Optional[str]) -> None:
+    def show_error(self, error: str) -> None:
         """
         Method to show the error to the user.
 
         Parameters
         -----------
-        error_msg : str, optional
-            The message to be printed to the user.
-            This parameters is optional.
-            If it's not passed, its default value will be:
-            'Digite a opção desejada: '
+        error : str
+            The error to be printed to the user.
         """
         self.show_message(f'''
-        Error: {error_msg}''')
+        Error: {error}''')
+
+    def show_error_option_invalid(self, option: str) -> None:
+        """
+        Method to show the error to the user.
+
+        Parameters
+        -----------
+        option : str
+            The option that the user typed.
+        """
+        self.show_message(f'''
+        Error: '{option}' isn't a valid option! Please, try again.''')
 
     def get_input(
         self,
@@ -71,7 +80,7 @@ class CLI(ABC, UI):
         str
             The user input.
         """
-        return input(msg)
+        return input(msg).title().strip()
 
     def get_option(self) -> str:
         """
@@ -82,6 +91,4 @@ class CLI(ABC, UI):
         str
             The user input.
         """
-        return self.get_input('''
-        Type your option: '''
-        )
+        return self.get_input('\nType your option: ')

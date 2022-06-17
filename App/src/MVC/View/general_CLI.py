@@ -2,6 +2,9 @@
 Module containing the 'CLI' Class.
 """
 
+# TYPE ANNOTATIONS IMPORTS
+from typing import Dict
+
 # MODULE IMPORTS
 from src.MVC.View.CLI import CLI
 
@@ -20,18 +23,21 @@ class GeneralCLI(CLI):
     (Dependency Inversion Principle).
     """
 
-    def show_menu_options(self) -> None:
+    def show_menu_options(self, menu_options: Dict[str, str]) -> None:
         """
         Method to show the menu to the user.
+
+        Parameters
+        ----------
+        menu_options : Dict[str, Dict]
+            Dict containing the menu options.
         """
         self.show_message('''
         Please, choose an option from the menu below:
-        
-        1 - Create a new character
-        2 - Load character
-        3 - Update character
-        4 - Delete character
-        5 - Exit''')
+        ''')
+
+        for option, description in menu_options.items():
+            self.show_message(f'\t{option} - {description}')
 
     def get_menu_option(self) -> str:
         """

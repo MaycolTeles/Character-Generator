@@ -53,19 +53,31 @@ class GeneralController():
         """
         Method to show the menu and execute the selected option.
         """
-        AVAILABLE_MENU_OPTIONS = {
+        AVAILABLE_MENU_FUNCTIONS = {
             '1': self.app.character_controller.save_character_in_database,
             '2': self.app.character_controller.load_character_from_database,
-            '3': self.app.character_controller.update_character_in_database,
-            '4': self.app.character_controller.delete_character_in_database,
-            '5': self.exit
+            '3': self.app.character_controller.load_all_characters_from_database,
+            '4': self.app.character_controller.update_character_in_database,
+            '5': self.app.character_controller.delete_character_in_database,
+            '6': self.exit
         }
 
-        self.view.show_menu_options()
+        AVAILABLE_MENU_OPTIONS = {
+            '1': 'Save a character in the database',
+            '2': 'Load a character from the database',
+            '3': 'Load all characters from the database',
+            '4': 'Update a character in the database',
+            '5': 'Delete a character in the database',
+            '6': 'Exit'
+        }
+
+        self.view.show_menu_options(AVAILABLE_MENU_OPTIONS)
+
         menu_option = self.view.get_menu_option()
 
-        try:
-            menu_option = AVAILABLE_MENU_OPTIONS[menu_option]()
-        except KeyError as error:
-            self.view.show_error(f"{error} isn't a valid option! Please, try again.")
-            return
+        while menu_option not in AVAILABLE_MENU_FUNCTIONS:
+            self.view.show_error_option_invalid(menu_option)
+            menu_option = self.view.get_menu_option()
+
+        # EXECUTING THE SELECTED OPTION
+        AVAILABLE_MENU_FUNCTIONS[menu_option]()

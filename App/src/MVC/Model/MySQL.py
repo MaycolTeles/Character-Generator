@@ -6,7 +6,7 @@ Module containing the 'MySQL' Class.
 from mysql.connector import MySQLConnection
 from mysql.connector.cursor_cext import CMySQLCursor
 
-from typing import Any, List, Optional, Union
+from typing import Any, Tuple, List, Optional, Union
 
 # MODULE IMPORTS
 import mysql.connector as mysql
@@ -14,7 +14,7 @@ import mysql.connector as mysql
 from contextlib import contextmanager
 
 from src.Env.variables import HOST, USER, PASSWORD, DATABASE
-from src.Exceptions.character_not_found import CharacterNotFoundException
+from src.Exceptions.character_not_found_in_database import CharacterNotFoundInDatabaseException
 from src.Interfaces.MVC.Model.database_interface import Database
 from src.Models.Character.character import Character
 
@@ -38,7 +38,7 @@ def connect():
             database=DATABASE
         )
 
-        cursor: CMySQLCursor = connection.cursor()
+        cursor = connection.cursor()
 
         yield cursor
 
@@ -95,31 +95,14 @@ class MySQL(Database):
         if params is None:
             params = []
 
+        res = None
+
         with connect() as cursor:
             cursor.execute(query, params)
 
             res = cursor.fetchall()
 
-        print(res)
-
         return res
-
-    def build_character(self, character_data: List[str]) -> Character:
-        """
-        Method to build a character according to the data
-        retrieved from the database.
-
-        Returns
-        --------
-        Character
-            The built character.
-        """
-        return Character(
-            name=character_data[0],
-            archetype=character_data[1],
-            race=character_data[2],
-            level=character_data[3]
-        )
 
     def insert_character(self, character: Character) -> bool:
         """
@@ -135,9 +118,9 @@ class MySQL(Database):
         Any
             The data that was read.
         """
-        with open(self.QUERY_PATH + 'insert_character.sql', 'r') as file:
-            query = file.read()
-            self.__execute_query(query, character.params_to_database())
+        with open(self.QUERY_PATH + 'insert_character.sql', 'r') as query_file:
+            query = query_file.read()
+            self.__execute_query(query, list(character.get_attributes().values()))
 
         return True
 
@@ -157,19 +140,44 @@ class MySQL(Database):
 
         Raises
         -------
-        CharacterNotFoundException
+        CharacterNotFoundInDatabaseException
             If the character was not found in the database.
         """
-        with open(self.QUERY_PATH + 'read_character.sql', 'r') as file:
-            query = file.read()
-            character = self.__execute_query(query, [character_name])
+        with open(self.QUERY_PATH + 'read_character.sql', 'r') as query_file:
+            query = query_file.read()
+            character_data = self.__execute_query(query, [character_name])
 
-        if not character:
-            raise CharacterNotFoundException(
-                'Character not found in the database.'
-            )
+        if not character_data:
+            raise CharacterNotFoundInDatabaseException()
+
+        character = self.build_characters(character_data)[0]
 
         return character
+
+    def read_all_characters(self) -> List[Character]:
+        """
+        Method to read all characters from the database.
+
+        Returns
+        --------
+        character : Character
+            A list containing all characters found in the database.
+
+        Raises
+        -------
+        CharacterNotFoundInDatabaseException
+            If no character was found in the database.
+        """
+        with open(self.QUERY_PATH + 'read_all_characters.sql', 'r') as query_file:
+            query = query_file.read()
+            characters_data = self.__execute_query(query)
+
+        if not characters_data:
+            raise CharacterNotFoundInDatabaseException()
+
+        characters = self.build_characters(characters_data)
+
+        return characters
 
     def delete_character(self, character_name: str) -> bool:
         """
@@ -185,10 +193,79 @@ class MySQL(Database):
         --------
         bool
             - True if character was successfully deleted;
-            - False otherwise.
+            - Raises an exception otherwise.
+
+        Raises
+        -------
+        CharacterNotFoundInDatabaseException
+            If the character was not found in the database.
         """
-        with open(self.QUERY_PATH + 'delete_character.sql', 'r') as file:
-            query = file.read()
+        # CHECKING IF THE CHARACTER EXISTS IN THE DATABASE
+        character_exists = self.check_if_character_in_database(character_name)
+
+        if not character_exists:
+            raise CharacterNotFoundInDatabaseException()
+
+        # CHARACTER EXISTS, TRYING TO DELETE IT FROM THE DATABASE
+        with open(self.QUERY_PATH + 'delete_character.sql', 'r') as query_file:
+            query = query_file.read()
             self.__execute_query(query, [character_name])
 
         return True
+
+    def check_if_character_in_database(self, character_name: str) -> bool:
+        """
+        Method to check if a character exists in the database.
+
+        Parameters
+        -----------
+        character_name : str
+            The character name to access the character
+            to be checked in the database.
+
+        Returns
+        --------
+        bool
+            - True if character exists in the database;
+            - False otherwise.
+        """
+        with open(self.QUERY_PATH + 'read_character_name.sql', 'r') as query_file:
+            query = query_file.read()
+            character_exists = self.__execute_query(query, [character_name])
+
+        return bool(character_exists)
+
+    def build_characters(
+        self,
+        characters_data: List[Tuple[Union[str, int]]]
+        ) -> List[Character]:
+        """
+        Method to build a list of characters from the data received as argument.
+
+        Parameters
+        -----------
+        characters_data : List[Tuple[Union[str, int]]]
+            The data to be used to build the list of characters.
+
+        Returns
+        -------
+        List[Character]
+            The list of characters built from the data received as argument.
+        """
+
+        characters = []
+
+        for character_data in characters_data:
+
+            name, archetype, race, level = character_data
+
+            character = Character(
+                name=name,
+                archetype=archetype,
+                race=race,
+                level=level
+            )
+
+            characters.append(character)
+
+        return characters

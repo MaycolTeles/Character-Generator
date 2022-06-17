@@ -7,16 +7,16 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 if TYPE_CHECKING:
-    from src.App.app import App
     from src.Models.Archetype.archetype import Archetype
     from src.Models.Race.race import Race
 
 # MODULE IMPORTS
-from src.Interfaces.MVC.View.UI_interface import UI
-from src.Interfaces.MVC.Model.database_interface import Database
-
 from src.TEMP.archetypes import AVAILABLE_ARCHETYPES
 from src.TEMP.races import AVAILABLE_RACES
+
+from src.Exceptions.character_not_found_in_database import CharacterNotFoundInDatabaseException
+from src.Interfaces.MVC.View.UI_interface import UI
+from src.Interfaces.MVC.Model.database_interface import Database
 
 from src.Models.Character.character import Character
 
@@ -28,18 +28,12 @@ class CharacterController():
     # TODO: CREATE DOCSTRING
     """
 
-    def __init__(
-        self,
-        model: Database,
-        view: UI,
-        app: App
-    ) -> None:
+    def __init__(self, model: Database, view: UI) -> None:
         """
         TODO: CREATE DOCSTRING
         """
         self.model = model
         self.view = view
-        self.app = app
 
     def create_character(self) -> Character:
         """
@@ -49,98 +43,125 @@ class CharacterController():
         race = self.choose_race()
         name = self.choose_name()
 
-        return Character(
+        character = Character(
             archetype=archetype,
             race=race,
             name=name
         )
 
-    def save_character_in_database(self) -> bool:
+        self.view.show_message('\n\t************************')
+        self.view.show_message('\tCharacter created:')
+        self.view.show_character(character)
+        self.view.show_message('\t************************')
+
+        return character
+
+    def save_character_in_database(self) -> None:
         """
         TODO: CREATE DOCSTRING
         """
         character = self.create_character()
-        return self.model.insert_character(character)
 
-    def load_character_from_database(self) -> Character:
+        self.model.insert_character(character)
+
+    def load_character_from_database(self) -> None:
         """
         TODO: CREATE DOCSTRING
         """
-        self.view.show_message('Loading character...')
-        character_name = self.view.get_input('Enter your character Name: ').title()
+        character_name = self.view.get_character_name()
 
-        character = self.model.read_character(character_name)
+        try:
+            character = self.model.read_character(character_name)
 
-        if not character:
-            self.view.show_message(
-                f'Impossible to load the character {character_name}. '
-                'The character was not found!')
-            return False
+        except CharacterNotFoundInDatabaseException:
+            self.view.show_error_character_not_found(character_name)
+            return
 
-        return character
+        else:
+            self.view.show_character(character)
 
-    def update_character_in_database(self) -> Character:
-        """
-        TODO: CREATE DOCSTRING
-        """
-        self.view.show_message('Updating character...')
-        character_name = self.view.get_input('Enter your character Name: ').title()
-
-        character = self.model.read_character(character_name)
-
-        if not character:
-            self.view.show_message(
-                f'Impossible to load the character {character_name}. '
-                'The character was not found!')
-            return False
-
-        return character
-
-    def delete_character_in_database(self) -> bool:
+    def load_all_characters_from_database(self) -> None:
         """
         # TODO: CREATE DOCSTRING
         """
-        self.view.show_message('Deleting character...')
-        character_name = self.view.get_input('Enter your character Name: ').title()
+        try:
+            characters = self.model.read_all_characters()
 
-        character = self.model.delete_character(character_name)
+        except CharacterNotFoundInDatabaseException:
+            self.view.show_error_no_character_found()
+            return
 
-        if not character:
-            self.view.show_message(
-                f'Impossible to delete the character {character_name}. '
-                'The character was not found!')
-            return False
+        else:
+            self.view.show_characters(characters)
 
-        return character
+    def update_character_in_database(self) -> None:
+        """
+        TODO: CREATE DOCSTRING
+        """
+        character_name = self.view.get_character_name()
+
+        try:
+            character = self.model.read_character(character_name)
+        
+        except CharacterNotFoundInDatabaseException:
+            self.view.show_error_character_not_found(character_name)
+            return
+
+        else:
+            self.view.show_character(character)
+
+    def delete_character_in_database(self) -> None:
+        """
+        # TODO: CREATE DOCSTRING
+        """
+        character_name = self.view.get_character_name()
+
+        try:
+            res = self.model.delete_character(character_name)
+
+        except CharacterNotFoundInDatabaseException:
+            self.view.show_error_character_not_found(character_name)
+            return
+
+        self.view.show_message('\n\tCharacter deleted.')
 
     def choose_archetype(self) -> Archetype:
         """
         TODO: CREATE DOCSTRING
         """
-        character_archetype = self.view.get_input(
-            'Enter your character Archetype (Class): ').lower()
+        # SHOWING AVAILABLE ARCHETYPES
+        self.view.show_archetypes_options(AVAILABLE_ARCHETYPES)
 
-        while character_archetype not in AVAILABLE_ARCHETYPES:
-            character_archetype = self.view.get_input(
-                'Enter your character Archetype (Class): '
-            ).lower()
+        # GETTING THE ARCHETYPE
+        archetype_option = self.view.get_archetype_option()
 
-        archetype = AVAILABLE_ARCHETYPES[character_archetype]
+        # REPEAT THE LOOP IF THE USER INPUT ISN'T VALID
+        while archetype_option not in AVAILABLE_ARCHETYPES:
+            self.view.show_error_option_invalid(archetype_option)
+            archetype_option = self.view.get_archetype_option()
 
-        return archetype()
+        # RETURNING THE AVAILABLE ARCHETYPE OBJECT
+        archetype_obj = AVAILABLE_ARCHETYPES[archetype_option]
+
+        return archetype_obj()
 
     def choose_race(self) -> Race:
         """
         TODO: CREATE DOCSTRING
         """
-        character_race = None
+        # SHOWING AVAILABLE RACES
+        self.view.show_races_options(AVAILABLE_RACES)
 
-        while character_race not in AVAILABLE_RACES:
-            character_race = self.view.get_input(
-                'Enter your character Race: '
-            ).lower()
+        # GETTING THE RACE
+        race_option = self.view.get_race_option()
 
-        race = AVAILABLE_RACES[character_race]
+        # REPEAT THE LOOP IF THE USER INPUT ISN'T VALID
+        while race_option not in AVAILABLE_RACES:
+            self.view.show_error_option_invalid(race_option)
+            race_option = self.view.get_race_option()
+
+        # RETURNING THE AVAILABLE ARCHETYPE OBJECT
+        race = AVAILABLE_RACES[race_option]
 
         return race()
 
@@ -148,6 +169,6 @@ class CharacterController():
         """
         TODO: CREATE DOCSTRING
         """
-        character_name = self.view.get_input('Enter your character Name: ').title()
+        character_name = self.view.get_character_name()
 
         return character_name
