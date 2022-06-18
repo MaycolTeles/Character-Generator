@@ -1,4 +1,4 @@
-<img align="right" width="450" height="300" src="assets/elden_ring_character_archetypes.png">
+<img align="right" width="500" height="300" src="assets/elden_ring_character_archetypes.png">
 
 # Character Generator :game_die:
 Project developed to generate a character based on the game [Elden Ring](https://pt.wikipedia.org/wiki/Elden_Ring).
@@ -65,7 +65,8 @@ pip install -r requirements.txt
 ```
 
 ### Creating the .env file :spiral_notepad:
-In order to run the project, you must create a .env file to store the necessary environment variables (in this case, some database informations). So, go to the App folder ('/App') and open the file named "sample_env.txt". Follow the instructions inside it to create the .env file.
+In order to run the project, you must create a .env file to store the necessary environment variables (in this case, some database informations).
+So, go to the App folder ('/App') and open the file named "sample_env.txt". Follow the instructions inside it to create the .env file.
 
 ### Executing the Project :arrow_forward:
 ```
