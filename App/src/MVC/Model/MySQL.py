@@ -65,13 +65,13 @@ class MySQL(Database):
     (Dependency Inversion Principle).
     """
 
-    QUERY_PATH = 'App/database/queries/'
+    QUERY_PATH = 'App/Database/Queries/'
 
     def __execute_query(
         self,
         query: str,
         params: Optional[List[Union[str, int]]]=None
-    ) -> Any:
+        ) -> Any:
         """
         Method to execute the query received as argument with the parameters
         (If any - The default is an empty list for select's, for example)
@@ -179,6 +179,28 @@ class MySQL(Database):
 
         return characters
 
+    def update_character(self, character_name: str, character_new_name: str) -> bool:
+        """
+        Method to update the character in the database.
+
+        Parameters
+        -----------
+        character_name : str
+            The character name to access the character
+            to be updated in the database.
+
+        Returns
+        --------
+        bool
+            - True if character was successfully updated;
+            - Raises an exception otherwise.
+        """
+        with open(self.QUERY_PATH + 'update_character.sql', 'r') as query_file:
+            query = query_file.read()
+            self.__execute_query(query, [character_new_name, character_name])
+
+        return True
+
     def delete_character(self, character_name: str) -> bool:
         """
         Method to delete some data from the database.
@@ -257,7 +279,7 @@ class MySQL(Database):
 
         for character_data in characters_data:
 
-            name, archetype, race, level = character_data
+            id, name, archetype, race, level, mount, weapon = character_data
 
             character = Character(
                 name=name,
@@ -269,3 +291,6 @@ class MySQL(Database):
             characters.append(character)
 
         return characters
+
+
+mysql_instance = MySQL()

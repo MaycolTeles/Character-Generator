@@ -2,7 +2,9 @@
 Module containing the 'App' Class.
 """
 
-from src.MVC.Model.MySQL import MySQL
+import os
+
+from src.MVC.Model.MySQL import mysql_instance
 
 from src.MVC.View.general_CLI import GeneralCLI
 from src.MVC.View.character_CLI import CharacterCLI
@@ -20,18 +22,26 @@ class App:
         """
         # TODO: CREATE DOCSTRING
         """
-        mysql = MySQL()
 
         self.general_controller = GeneralController(
-            model=mysql,
+            model=mysql_instance,
             view=GeneralCLI(),
             app=self
         )
 
         self.character_controller = CharacterController(
-            model=mysql,
+            model=mysql_instance,
             view=CharacterCLI(),
         )
+
+        self.__setup()
+
+    def __setup(self) -> None:
+        """
+        Method to setup the application
+        """
+        # CLEAR THE TERMINAL
+        os.system('cls||clear')
 
     def run(self) -> None:
         """

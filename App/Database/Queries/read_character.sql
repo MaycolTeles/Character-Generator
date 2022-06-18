@@ -1,3 +1,3 @@
 SELECT *
-    FROM `characters` AS c 
+    FROM `character` AS c 
     WHERE c.name = %s;

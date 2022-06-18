@@ -98,17 +98,24 @@ class CharacterController():
         """
         TODO: CREATE DOCSTRING
         """
+        self.view.show_message('\n\tPlease, provide your character OLD name')  
         character_name = self.view.get_character_name()
 
         try:
             character = self.model.read_character(character_name)
-        
+
         except CharacterNotFoundInDatabaseException:
             self.view.show_error_character_not_found(character_name)
             return
 
-        else:
-            self.view.show_character(character)
+        # UPDATING THE CHARACTER NAME
+        self.view.show_message('\n\tNow, please, provide your character NEW name')  
+        new_character_name = self.view.get_character_name()
+        self.model.update_character(character_name, new_character_name)
+
+        # SHOWING THE CARACTER
+        character = self.model.read_character(new_character_name)
+        self.view.show_character(character)
 
     def delete_character_in_database(self) -> None:
         """

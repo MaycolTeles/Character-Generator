@@ -1,4 +1,4 @@
-INSERT INTO `characters` (
+INSERT INTO `character` (
     `name`,
     `archetype`,
     `race`,
