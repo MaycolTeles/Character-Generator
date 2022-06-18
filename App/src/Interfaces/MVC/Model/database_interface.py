@@ -2,7 +2,7 @@
 Module containing the 'Database' Interface.
 """
 
-from typing import Any, Protocol
+from typing import Protocol, Any, List
 
 
 class Database(Protocol):
@@ -17,7 +17,7 @@ class Database(Protocol):
     (Dependency Inversion Principle).
     """
 
-    def connect(self) -> bool:
+    def __connect(self) -> bool:
         """
         Method to connect to the database.
 
@@ -30,9 +30,8 @@ class Database(Protocol):
             - True if connection was successfully established;
             - False otherwise.
         """
-        ...
 
-    def close(self) -> bool:
+    def __close(self) -> bool:
         """
         Method to close the connection to the database.
 
@@ -45,9 +44,8 @@ class Database(Protocol):
             - True if connection was successfully closed;
             - False otherwise.
         """
-        ...
 
-    def insert_data(self, data: Any) -> bool:
+    def __execute_query(self, query: str, params: List[Any] = []) -> bool:
         """
         Method to insert some data into the database.
 
@@ -60,58 +58,3 @@ class Database(Protocol):
             - True if data was successfully inserted into the database;
             - False otherwise.
         """
-        ...
-
-    def read_data(self) -> Any:
-        """
-        Method to read some data from the database.
-
-        This method must be implemented in all classes that
-        implements this interface
-
-        Returns
-        --------
-        Any
-            The data that was read.
-        """
-        ...
-
-    def update_data(self, data: Any) -> bool:
-        """
-        Method to update some data in the database.
-
-        This method must be implemented in all classes that
-        implements this interface.
-
-        Parameters
-        -----------
-        data : Any
-            The data to be updated in the database.
-
-        Returns
-        --------
-        bool
-            - True if data was successfully updated;
-            - False otherwise.
-        """
-        ...
-
-    def delete_data(self, data: Any) -> bool:
-        """
-        Method to delete some data from the database.
-
-        This method must be implemented in all classes that
-        implements this interface.
-
-        Parameters
-        -----------
-        data : Any
-            The data to be deleted in the database.
-
-        Returns
-        --------
-        bool
-            - True if data was successfully deleted;
-            - False otherwise.
-        """
-        ...

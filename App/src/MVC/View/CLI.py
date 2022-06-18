@@ -2,16 +2,22 @@
 Module containing the 'CLI' Class.
 """
 
-from App.src.Interfaces.MVC.View.UI_interface import UI
+# TYPE ANNOTATIONS IMPORTS
+from typing import Optional
+
+# MODULE IMPORTS
+from abc import ABC
+
+from src.Interfaces.MVC.View.UI_interface import UI
 
 
-class CLI(UI):
+class CLI(ABC, UI):
     """
-    Class to represent a Command Line Interface.
+    Abstract Class to represent a Command Line Interface.
 
     This class implements the 'UI' Interface, so
     it has all the 'UI' functionalities, like:
-    
+
     - Reading user inputs.
     - Showing some informations for the user.
 
@@ -19,29 +25,70 @@ class CLI(UI):
     (Dependency Inversion Principle).
     """
 
-    def show(self, msg: str) -> None:
+    def show_message(self, msg: str) -> None:
         """
-        Method to show some message or text to the user.
-
-        This method must be implemented in all classes that
-        implements this interface.
+        Method to show some message to the user.
 
         Parameters
         -----------
         msg : str
-            The message to be showed to the user.
+            The message to be printed to the user.
         """
+        print(msg)
 
-    def get_input(self) -> str:
+    def show_error(self, error: str) -> None:
+        """
+        Method to show the error to the user.
+
+        Parameters
+        -----------
+        error : str
+            The error to be printed to the user.
+        """
+        self.show_message(f'''
+        Error: {error}''')
+
+    def show_error_option_invalid(self, option: str) -> None:
+        """
+        Method to show the error to the user.
+
+        Parameters
+        -----------
+        option : str
+            The option that the user typed.
+        """
+        self.show_message(f'''
+        Error: '{option}' isn't a valid option! Please, try again.''')
+
+    def get_input(
+        self,
+        msg: Optional[str]='Please, choose one option: '
+    ) -> str:
         """
         Method to get some input from the user.
 
-        This method must be implemented in all classes that
-        implements this interface.
+        Parameters
+        -----------
+        msg : str, optional
+            The message to be printed to the user.
+            This parameters is optional.
+            If it's not passed, its default value will be:
+            'Digite a opção desejada: '
 
         Returns
-        -----------
+        --------
         str
             The user input.
         """
-        ...
+        return input(msg).title().strip()
+
+    def get_option(self) -> str:
+        """
+        Method to get the user input from the menu.
+
+        Returns
+        --------
+        str
+            The user input.
+        """
+        return self.get_input('\nType your option: ')

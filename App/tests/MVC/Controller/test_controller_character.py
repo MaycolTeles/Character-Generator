@@ -1,5 +1,5 @@
 """
-Module containing the 'TestController' Class.
+Module containing the 'TestControllerCharacter' Class.
 """
 
 # MODULE IMPORTS
@@ -8,13 +8,13 @@ import unittest
 from src.MVC.View.CLI import CLI
 from src.MVC.Model.MySQL import MySQL
 
-from src.MVC.Controller.controller import Controller
+from src.MVC.Controller.Character.controller_character import ControllerCharacter
 from src.Models.Character.character import Character
 from src.Models.Archetype.archetype import Archetype
 from src.Models.Race.race import Race
 
 
-class TestController(unittest.TestCase):
+class TestControllerCharacter(unittest.TestCase):
     """
     Class containing test for the 'Controller' Class.
     """
@@ -23,7 +23,7 @@ class TestController(unittest.TestCase):
         """
         TODO: CREATE DOCSTRING
         """
-        self.controller_instance = Controller(
+        self.controller_character_instance = ControllerCharacter(
             model=MySQL(),
             view=CLI()
         )
